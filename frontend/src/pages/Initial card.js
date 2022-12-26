@@ -1,7 +1,17 @@
-import React from "react";
+import React, {useContext} from "react";
+import AuthContext from "../context/AuthContext";
 
 const MainCard = () => {
-  return <div className="description">Click here to create a note</div>;
+  let {loginUser}  = useContext(AuthContext)
+  return(
+    <div>
+      <form onSubmit={loginUser}>
+        <input type='text' name='username' placeholder='Enter Username'/>
+        <input type='password' name='password' placeholder='Enter password'/>
+        <input type='submit' value="submit"/>
+      </form>
+    </div>
+  );
 };
 
 export default MainCard;
