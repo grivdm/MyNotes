@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
+import useFetch from "../utils/useFetch";
+
 
 function NotePage({ getNotes }) {
+  let customFetch = useFetch() 
+  let {user, authToken} = useContext(AuthContext)
   const [note, SetNote] = useState([]);
   const { noteid } = useParams();
   useEffect(() => {
@@ -17,49 +22,38 @@ function NotePage({ getNotes }) {
       let response = { content: "" };
       SetNote(response);
     } else {
-      let response = await fetch(`/api/note/${noteid}/`);
-      let data = await response.json();
+      let {response, data} = await customFetch(`/api/note/${noteid}/`,{method:'GET'});
       SetNote(data);
     }
   };
 
   let createNote = async () => {
-    fetch(`/api/note/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    await customFetch(`/api/note/`,{
+      method:'POST',
       body: JSON.stringify(note),
-    })
-      .then((response) => {
-        response.json();
-      })
-      .then((data) => {
-        console.log("Created");
-      });
+    });    
+    console.log('Created')
     navigate("/");
     getNotes();
   };
 
   let updateNote = async () => {
-    fetch(`/api/note/${noteid}/`, {
+    await customFetch(`/api/note/${noteid}/`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(note),
-    })
-      .then((response) => {
-        response.json();
       })
-      .then((data) => {
-        console.log("Updated");
-      });
   };
 
   let deleteNote = async () => {
     fetch(`/api/note/${noteid}/`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer ' + String(authToken?.access)
+    },
     });
-    navigate("/");
     getNotes();
+    navigate("/");
     console.log("Deleted");
   };
 
@@ -81,7 +75,7 @@ function NotePage({ getNotes }) {
     } else {
       BlankValue(true);
     }
-    SetNote((note) => ({ ...note, content: value }));
+    SetNote((note) => ({ ...note, content: value, user:user.user_id }));
   };
 
   return (
