@@ -3,10 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import useFetch from "../utils/useFetch";
 
-
 function NotePage({ getNotes }) {
-  let customFetch = useFetch() 
-  let {user, authToken} = useContext(AuthContext)
+  let customFetch = useFetch();
+  let { user, authToken } = useContext(AuthContext);
   const [note, SetNote] = useState([]);
   const { noteid } = useParams();
   useEffect(() => {
@@ -22,17 +21,22 @@ function NotePage({ getNotes }) {
       let response = { content: "" };
       SetNote(response);
     } else {
-      let {response, data} = await customFetch(`/api/note/${noteid}/`,{method:'GET'});
-      SetNote(data);
+      let { response, data } = await customFetch(`/api/note/${noteid}/`, {
+        method: "GET",
+      });
+      if (response.status === 200) {
+        SetNote(data);
+      } else {
+        navigate("/");
+      }
     }
   };
 
   let createNote = async () => {
-    await customFetch(`/api/note/`,{
-      method:'POST',
+    await customFetch(`/api/note/`, {
+      method: "POST",
       body: JSON.stringify(note),
-    });    
-    console.log('Created')
+    });
     navigate("/");
     getNotes();
   };
@@ -41,20 +45,20 @@ function NotePage({ getNotes }) {
     await customFetch(`/api/note/${noteid}/`, {
       method: "PUT",
       body: JSON.stringify(note),
-      })
+    });
+    getNotes();
   };
 
   let deleteNote = async () => {
-    fetch(`/api/note/${noteid}/`, {
+    await fetch(`/api/note/${noteid}/`, {
       method: "DELETE",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        'Authorization': 'Bearer ' + String(authToken?.access)
-    },
+        Authorization: "Bearer " + String(authToken?.access),
+      },
     });
     getNotes();
     navigate("/");
-    console.log("Deleted");
   };
 
   let handleSubmit = () => {
@@ -75,7 +79,7 @@ function NotePage({ getNotes }) {
     } else {
       BlankValue(true);
     }
-    SetNote((note) => ({ ...note, content: value, user:user.user_id }));
+    SetNote((note) => ({ ...note, content: value, user: user.user_id }));
   };
 
   return (

@@ -1,105 +1,92 @@
-import { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import jwt_decode from "jwt-decode";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
-  // console.log('AuthProvider')
+  const navigate = useNavigate();
 
-  const navigate = useNavigate()
-
-  let [user, setUser] = useState(() =>
+  const [user, setUser] = useState(() =>
     localStorage.getItem("authToken")
       ? jwt_decode(localStorage.getItem("authToken"))
       : null
   );
 
-  let [authToken, setAuthTokens] = useState(() =>
+  const [authToken, setAuthToken] = useState(() =>
     localStorage.getItem("authToken")
       ? JSON.parse(localStorage.getItem("authToken"))
       : null
   );
 
-  let [load, setLoad] = useState(true);
+  const [load, setLoad] = useState(true);
+  const [loginerr, setLoginerr] = useState({
+    email: "",
+    password: "",
+    detail: "",
+  });
 
   useEffect(() => {
-    // console.log('useEffect')
     if (authToken) {
       setUser(jwt_decode(authToken.access));
-    };
-
-    setLoad(false)
+    }
+    setLoad(false);
   }, [authToken, load]);
 
   let logoutUser = () => {
-    console.log('logoutUser')
-    setAuthTokens(null);
+    setAuthToken(null);
     setUser(null);
     localStorage.removeItem("authToken");
-    navigate('/login')
+    navigate("/");
   };
 
   let loginUser = async (e) => {
-    console.log('loginUser')
-    e.preventDefault();
-    let response = await fetch(`http://127.0.0.1:8000/api/token/`, {
+    await fetch(`http://127.0.0.1:8000/api/auth/jwt/create/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username: e.target.username.value,
+        email: e.target.email.value,
         password: e.target.password.value,
       }),
-    });
-    let data = await response.json();
+    })
+      .then(async (response) => {
+        const data = await response.json();
+        if (response.status >= 400 && response.status < 500) {
+          const map = new Map();
+          Object.keys(data).forEach((key) => {
+            map.set(key, data[key]);
+          });
 
-    if (response.status === 200) {
-      setAuthTokens(data);
-      setUser(jwt_decode(data.access));
-      localStorage.setItem("authToken", JSON.stringify(data));
-      navigate('/')
-    } else {
-      alert("Smth went wrong! Please try again!");
-    }
+          map.forEach((value, key) => {
+            setLoginerr((prevState) => ({ ...prevState, [key]: value }));
+          });
+        } if(response.status == 200) {
+          setAuthToken(data);
+          setUser(jwt_decode(data.access));
+          localStorage.setItem("authToken", JSON.stringify(data));
+          navigate("/");
+        }
+      })
+      .catch(() => {
+        alert("Smth went wrong! Please try again!");
+      });
   };
-
-  // let updateToken = async () => {
-  //   if (authToken){
-  //     let response = await fetch(`http://127.0.0.1:8000/api/token/refresh/`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ refresh: authToken?.refresh }),
-  //     });
-  //     console.log("updateToken");
-  
-  //     let data = await response.json();
-      
-  //     if (response.status === 200) {
-  //       setAuthTokens(data);
-  //       setUser(jwt_decode(data.access));
-  //       localStorage.setItem("authToken", JSON.stringify(data));
-  //     } else {
-  //       logoutUser();
-  //     };
-  //   }
-
-
-  //   if (load) {
-  //     setLoad(false);
-  //   }
-  // };
 
   let contextData = {
     user: user,
     loginUser: loginUser,
     logoutUser: logoutUser,
     authToken: authToken,
-    setAuthTokens: setAuthTokens,
+    setAuthTokens: setAuthToken,
     setUser: setUser,
+    loginerr: loginerr,
+    setLoginerr: setLoginerr,
   };
   return (
-    <AuthContext.Provider value={contextData}>{load? null : children}</AuthContext.Provider>
+    <AuthContext.Provider value={contextData}>
+      {load ? null : children}
+    </AuthContext.Provider>
   );
 };
