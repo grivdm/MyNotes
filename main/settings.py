@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt.token_blacklist',
+    'djoser',
 
 ]
 
@@ -86,6 +87,7 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = 'todoapiapp.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -152,19 +154,13 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=10),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
 
     'ALGORITHM': 'HS256',
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None, 
-    'ISSUER': None,
-    'JWK_URL': None,
-    'LEEWAY': 0,
-
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
@@ -177,7 +173,4 @@ SIMPLE_JWT = {
 
     'JTI_CLAIM': 'jti',
 
-    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }

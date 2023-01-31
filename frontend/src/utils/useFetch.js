@@ -18,14 +18,14 @@ let useFetch = () => {
         let response = await fetch(url, config)
         if(response){
             let data = await response.json()
+            // console.log('REQUESTING:', data)
             return {response, data}
         }
-        // console.log('REQUESTING:', data)
     }
 
     let refreshToken = async (authToken) => {
-        console.log('refreshToken')
-        let response = await fetch('http://127.0.0.1:8000/api/token/refresh/', {
+        // console.log('refreshToken')
+        let response = await fetch('http://127.0.0.1:8000/api/auth/jwt/refresh/', {
             method:'POST',
             headers:{
                 'Content-Type':'application/json'
@@ -48,7 +48,7 @@ let useFetch = () => {
         console.log('is expired', isExpired)
 
         if(isExpired){
-            authToken =  await refreshToken(authToken).then(console.log('refreshtoken finish'))
+            authToken =  await refreshToken(authToken)
         }
 
         config = {...settings}
