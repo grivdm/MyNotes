@@ -4,17 +4,21 @@ import RegistrationComponent from "../components/RegistrationComponent";
 
 import { CSSTransition, SwitchTransition } from "react-transition-group";
 
+
+const Emoji = ({label, symbol}) => (
+  <span
+    className="emoji"
+    role="img"
+    aria-label={label ? label : ""}
+    aria-hidden={label ? "false" : "true"}
+  >
+    {symbol}
+  </span>
+);
+
+
 const WelcomePage = () => {
-  const Emoji = (props) => (
-    <span
-      className="emoji"
-      role="img"
-      aria-label={props.label ? props.label : ""}
-      aria-hidden={props.label ? "false" : "true"}
-    >
-      {props.symbol}
-    </span>
-  );
+
 
   const [state, setState] = useState(false);
   const logRef = useRef(null);

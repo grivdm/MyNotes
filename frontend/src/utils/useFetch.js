@@ -1,71 +1,90 @@
-import { useContext } from 'react'
+import { useContext, useState } from "react";
 import jwt_decode from "jwt-decode";
-import dayjs from 'dayjs'
-import AuthContext from '../context/AuthContext';
+import dayjs from "dayjs";
+
+import AuthContext from "../context/AuthContext";
 
 
-let useFetch = () => {
 
-    let config = {}
-    let {authToken, setAuthTokens, setUser} = useContext(AuthContext)
+const useFetch = () => {
+  let config = {};
+  let { authToken, setAuthToken, logoutUser, setUser } =
+    useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
 
-    let baseURL = 'http://127.0.0.1:8000'
 
-    let originalRequest = async (url, config)=> {
 
-        console.log('originalRequest ', url, config)
-        url = `${baseURL}${url}`
-        let response = await fetch(url, config)
-        if(response){
-            let data = await response.json()
-            // console.log('REQUESTING:', data)
-            return {response, data}
+  const baseURL = "http://127.0.0.1:8000";
+
+  const originalRequest = async (url, config) => {
+    url = `${baseURL}${url}`;
+    const response = await fetch(url, config);
+    if (response) {
+      const data = await response.json();
+      return { response, data };
+    }
+  };
+
+  const refreshToken = async (refresh) => {
+    setLoading(true);
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/auth/jwt/refresh/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refresh: refresh }),
+      }
+    )
+      .then(async (response) => {
+        let data = await response.json();
+        if (response.status == 200) {
+          console.log('old: ' + localStorage.getItem("authToken"))
+          localStorage.setItem("authToken", JSON.stringify(data));
+          console.log('new: ' + localStorage.getItem("authToken"))
+          setAuthToken(data);
+          setUser(jwt_decode(data.access));
+        }else if(response.status == 401){
+          console.log('401')
+        } else {
+          logoutUser();
         }
+        return data;
+      })
+
+      .catch((err) => {
+        setLoading(false);
+        alert("Smth went wrong! Please try again!" + err.message);
+      });
+
+    setLoading(false);
+    return response;
+  };
+
+  const callFetch = async (url, settings) => {
+    let actualtoken = {...authToken};
+
+    const user = jwt_decode(actualtoken?.access);
+    const isExpired = dayjs.unix(user?.exp).diff(dayjs()) < 1;
+
+    if (isExpired && !loading) {
+      actualtoken = await refreshToken(actualtoken.refresh);
     }
 
-    let refreshToken = async (authToken) => {
-        // console.log('refreshToken')
-        let response = await fetch('http://127.0.0.1:8000/api/auth/jwt/refresh/', {
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json'
-            },
-            body:JSON.stringify({'refresh':authToken.refresh})
-        })
-        let data = await response.json()
-        if (data.code !=="token_not_valid"){
-        localStorage.setItem('authToken', JSON.stringify(data))
-        setAuthTokens(data)
-        setUser(jwt_decode(data.access))
-        }
-        return data
-    }
+    config = {
+      ...settings,
+      headers: {
+        Authorization: `Bearer ${actualtoken?.access}`,
+        "Content-Type": "application/json",
+      },
+    };
 
-    let callFetch = async (url, settings) => {
-        
-        const user = jwt_decode(authToken?.access)
-        const isExpired = dayjs.unix(user?.exp).diff(dayjs()) < 1;
-        console.log('is expired', isExpired)
+    const { response, data } = await originalRequest(url, config);
+    return { response, data };
+  };
 
-        if(isExpired){
-            authToken =  await refreshToken(authToken)
-        }
-
-        config = {...settings}
-        config['headers'] = {
-            Authorization: `Bearer ${authToken?.access}`,
-            'Content-Type':'application/json'
-        }
-        console.log('config:', config)
-        console.log('is expired final', isExpired)
-
-        
-
-        let {response, data} = await originalRequest(url, config)
-        return {response, data}
-    }
-
-    return callFetch
-}
+  return callFetch;
+};
 
 export default useFetch;

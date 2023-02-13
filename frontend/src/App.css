@@ -147,7 +147,6 @@ a {
   margin: 0 7px;
   overflow: hidden;
   flex: 0.7;
-  display: flex;
   flex-direction: column;
   background: var(--color-background-workplace);
   min-width: 200px;
@@ -487,16 +486,37 @@ a {
   .notes-list-item p {
     visibility: hidden;
   }
+  .notes-list-item-title{
+    font-weight: 200;
+    font-size: 27px;
+
+  }
 
   .notes-list-item {
-    height: 5em;
-    border-bottom: hidden;
+    width: 10em;
+    height: 100%;
+    border-bottom: none;
+    border-right: 1px solid var(--color-main-blue);
   }
 
   .main {
     flex-direction: column;
     height: 100vh;
     transition: all 1s;
+  }
+
+
+  .sidebar{
+    max-width: none;
+    flex: none;
+    overflow:auto;
+  }
+
+  .sidebar-header{
+    height: auto;
+  }
+  .notes-list-item-info{
+    display: none;
   }
 
   .workspace {
@@ -506,6 +526,7 @@ a {
 
   .notes-list {
     flex-direction: row;
+    height: 7em;
   }
 
   .input-w-element {

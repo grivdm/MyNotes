@@ -6,7 +6,6 @@ let getTitle = (note) => {
   if (title.length > 22) {
     title = title.slice(0, 22);
     title = title.split(" ").slice(0, -1).join(" ");
-    return title;
   }
   return title;
 };
@@ -15,11 +14,7 @@ let getContent = (note) => {
   let title = getTitle(note);
   let cont = note.content.replaceAll("\n", "");
   cont = cont.replaceAll(title, "");
-  if (cont.length > 50) {
-    return cont.slice(0, 50) + "...";
-  } else {
-    return cont;
-  }
+  return cont.length > 50 ? cont.slice(0, 50) + "..." : cont;
 };
 
 let getTime = (note) => {
@@ -27,17 +22,10 @@ let getTime = (note) => {
   const updateTime = new Date(note.updated).toLocaleDateString();
 
   return (
-    <>
-      <div className="notes-list-item-info">
-        <div>
-        created : {createTime} 
-        </div>
-        <div>
-        updated : {updateTime}
-        </div>
-
-      </div>
-    </>
+    <div className="notes-list-item-info">
+      <div>created : {createTime}</div>
+      <div>updated : {updateTime}</div>
+    </div>
   );
 };
 

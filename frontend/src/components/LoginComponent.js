@@ -7,22 +7,18 @@ import { CSSTransition } from "react-transition-group";
 const LoginComponent = () => {
   const nodeRef = useRef(null);
   const { loginUser, setLoginerr, loginerr } = useContext(AuthContext);
-  const [login, setLogin] = useState(() => {
-    return {
-      username: "",
-      email: "",
-      password: "",
-    };
+  const [login, setLogin] = useState({
+    username: "",
+    email: "",
+    password: "",
   });
 
   function changeInputLogin(e) {
     e.persist();
-    setLogin((prev) => {
-      return {
-        ...prev,
-        [e.target.name]: e.target.value,
-      };
-    });
+    setLogin((prev) => ({ 
+      ...prev,
+      [e.target.name]: e.target.value 
+    }));
   }
   const [isRevealPwd, setIsRevealPwd] = useState(false);
 

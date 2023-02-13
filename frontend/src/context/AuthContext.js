@@ -9,16 +9,14 @@ export default AuthContext;
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
-  const [user, setUser] = useState(() =>
-    localStorage.getItem("authToken")
-      ? jwt_decode(localStorage.getItem("authToken"))
-      : null
+  const LSAuthToken = localStorage.getItem("authToken");
+
+  const [user, setUser] = useState(
+    LSAuthToken ? jwt_decode(LSAuthToken) : null
   );
 
-  const [authToken, setAuthToken] = useState(() =>
-    localStorage.getItem("authToken")
-      ? JSON.parse(localStorage.getItem("authToken"))
-      : null
+  const [authToken, setAuthToken] = useState(
+    LSAuthToken ? JSON.parse(LSAuthToken) : null
   );
 
   const [load, setLoad] = useState(true);
@@ -33,7 +31,7 @@ export const AuthProvider = ({ children }) => {
       setUser(jwt_decode(authToken.access));
     }
     setLoad(false);
-  }, [authToken, load]);
+  }, [authToken]);
 
   let logoutUser = () => {
     setAuthToken(null);
@@ -62,7 +60,7 @@ export const AuthProvider = ({ children }) => {
           map.forEach((value, key) => {
             setLoginerr((prevState) => ({ ...prevState, [key]: value }));
           });
-        } if(response.status == 200) {
+        } else if (response.status === 200) {
           setAuthToken(data);
           setUser(jwt_decode(data.access));
           localStorage.setItem("authToken", JSON.stringify(data));
@@ -75,14 +73,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   let contextData = {
-    user: user,
-    loginUser: loginUser,
-    logoutUser: logoutUser,
-    authToken: authToken,
-    setAuthTokens: setAuthToken,
-    setUser: setUser,
-    loginerr: loginerr,
-    setLoginerr: setLoginerr,
+    user,
+    loginUser,
+    logoutUser,
+    authToken,
+    setAuthToken,
+    setUser,
+    loginerr,
+    setLoginerr,
   };
   return (
     <AuthContext.Provider value={contextData}>

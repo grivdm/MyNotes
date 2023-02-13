@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+
 import AuthContext from "../context/AuthContext";
 import useFetch from "../utils/useFetch";
 
 function NotePage({ getNotes }) {
-  let customFetch = useFetch();
-  let { user, authToken } = useContext(AuthContext);
+  const customFetch = useFetch();
+  const { user, authToken } = useContext(AuthContext);
   const [note, SetNote] = useState([]);
   const { noteid } = useParams();
   useEffect(() => {
@@ -16,10 +17,9 @@ function NotePage({ getNotes }) {
 
   const navigate = useNavigate();
 
-  let getNote = async () => {
+  const getNote = async () => {
     if (noteid === "new") {
-      let response = { content: "" };
-      SetNote(response);
+      SetNote({ content: "" });
     } else {
       let { response, data } = await customFetch(`/api/note/${noteid}/`, {
         method: "GET",
@@ -32,7 +32,15 @@ function NotePage({ getNotes }) {
     }
   };
 
-  let createNote = async () => {
+  const updateNote = async () => {
+    await customFetch(`/api/note/${noteid}/`, {
+      method: "PUT",
+      body: JSON.stringify(note),
+    });
+    getNotes();
+  };
+  
+  const createNote = async () => {
     await customFetch(`/api/note/`, {
       method: "POST",
       body: JSON.stringify(note),
@@ -41,15 +49,7 @@ function NotePage({ getNotes }) {
     getNotes();
   };
 
-  let updateNote = async () => {
-    await customFetch(`/api/note/${noteid}/`, {
-      method: "PUT",
-      body: JSON.stringify(note),
-    });
-    getNotes();
-  };
-
-  let deleteNote = async () => {
+  const deleteNote = async () => {
     await fetch(`/api/note/${noteid}/`, {
       method: "DELETE",
       headers: {
@@ -61,7 +61,7 @@ function NotePage({ getNotes }) {
     navigate("/");
   };
 
-  let handleSubmit = () => {
+  const handleSubmit = () => {
     if (noteid !== "new" && !note.content) {
       deleteNote();
     } else if (noteid !== "new") {
@@ -73,7 +73,7 @@ function NotePage({ getNotes }) {
     getNotes();
   };
 
-  let handleChange = (value) => {
+  const handleChange = (value) => {
     if (noteid === "new" && !value) {
       BlankValue(false);
     } else {

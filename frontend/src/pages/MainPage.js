@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
+import { Routes, Route } from "react-router-dom";
+import { CSSTransition } from "react-transition-group";
+
 import Sidebar from "../components/Sidebar";
 import NotePage from "./NotePage";
-import { Routes, Route, } from "react-router-dom";
 import MainCard from "./Initial card";
-import PrivateRoute from "../utils/PrivateRoute";
+import Test from "../components/TestComponent";
 import AuthContext from "../context/AuthContext";
-import useFetch from "../utils/useFetch";
-import { CSSTransition } from "react-transition-group";
 import WelcomePage from "./WelcomePage";
+
+import useFetch from "../utils/useFetch";
+import PrivateRoute from "../utils/PrivateRoute";
 
 const Manager = () => {
   let customFetch = useFetch();
@@ -29,49 +32,40 @@ const Manager = () => {
       } else if (response.status === 401) {
         logoutUser();
       }
-    } 
-    // else {
-    //   setNotes();
-    // }
+    }
   };
 
-
   return (
-    <>
-      <div className="main">
-        <CSSTransition
-          classNames="sidebar-transition"
-          nodeRef={nodeRefSidebar}
-          in={Boolean(user)}
-          timeout={300}
-          unmountOnExit
-        >
-          <div className="sidebar" ref={nodeRefSidebar}>
-            <Sidebar notes={notes} />
-          </div>
-        </CSSTransition>
-
-        <div className="workspace">
-        <Routes>
-            <Route element={<PrivateRoute />}>
-              <Route path="/" element={<MainCard />} />
-              <Route path="*" element={<MainCard />} />
-              <Route
-                path="/note/:noteid"
-                element={<NotePage getNotes={getNotes} />}
-              />
-            </Route>
-
-            <Route
-              path="/welcome"
-              element={<WelcomePage />}
-              getNotes={getNotes}
-            />
-          </Routes>
-          
+    <div className="main">
+      <CSSTransition
+        classNames="sidebar-transition"
+        nodeRef={nodeRefSidebar}
+        in={Boolean(user)}
+        timeout={300}
+        unmountOnExit
+      >
+        <div className="sidebar" ref={nodeRefSidebar}>
+          <Sidebar notes={notes} />
         </div>
+      </CSSTransition>
+
+      <div className="workspace">
+        <Routes>
+          <Route element={<PrivateRoute />}>
+            <Route path="/*" element={<MainCard />} />
+            <Route
+              path="/note/:noteid"
+              element={<NotePage getNotes={getNotes} />}
+            />
+          </Route>
+          <Route
+            path="/welcome"
+            element={<WelcomePage />}
+            getNotes={getNotes}
+          />
+        </Routes>
       </div>
-    </>
+    </div>
   );
 };
 
