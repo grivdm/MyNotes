@@ -69,10 +69,11 @@ const RegistrationComponent = () => {
         : "Password must be at least 8 characters including lowercase [a-z], uppercase [A-Z] and a number",
     });
   };
+  const baseURL = process.env.REACT_APP_API_URL;
 
   const submitRegister = async (e) => {
     e.preventDefault();
-    await fetch(`http://127.0.0.1:8000/api/auth/users/`, {
+    await fetch(`${baseURL}/api/auth/users/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

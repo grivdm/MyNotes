@@ -5,7 +5,6 @@ import { CSSTransition } from "react-transition-group";
 import Sidebar from "../components/Sidebar";
 import NotePage from "./NotePage";
 import MainCard from "./Initial card";
-import Test from "../components/TestComponent";
 import AuthContext from "../context/AuthContext";
 import WelcomePage from "./WelcomePage";
 

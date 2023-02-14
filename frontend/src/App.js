@@ -16,7 +16,7 @@ function App() {
           </AuthProvider>
         </Router>
         <div className="footer">
-          <p>made with love</p>
+          <p>made with love by <a href="https://github.com/grivdm">grivdm</a></p>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import jwt_decode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
+const baseURL = process.env.REACT_APP_API_URL;
 
 export default AuthContext;
 
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   let loginUser = async (e) => {
-    await fetch(`http://127.0.0.1:8000/api/auth/jwt/create/`, {
+    await fetch(`${baseURL}/api/auth/jwt/create/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

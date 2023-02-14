@@ -4,17 +4,13 @@ import dayjs from "dayjs";
 
 import AuthContext from "../context/AuthContext";
 
-
-
 const useFetch = () => {
   let config = {};
   let { authToken, setAuthToken, logoutUser, setUser } =
     useContext(AuthContext);
   const [loading, setLoading] = useState(false);
 
-
-
-  const baseURL = "http://127.0.0.1:8000";
+  const baseURL = process.env.REACT_APP_API_URL;
 
   const originalRequest = async (url, config) => {
     url = `${baseURL}${url}`;
@@ -27,26 +23,19 @@ const useFetch = () => {
 
   const refreshToken = async (refresh) => {
     setLoading(true);
-    const response = await fetch(
-      "http://127.0.0.1:8000/api/auth/jwt/refresh/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refresh: refresh }),
-      }
-    )
+    const response = await fetch(`${baseURL}/api/auth/jwt/refresh/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refresh: refresh }),
+    })
       .then(async (response) => {
         let data = await response.json();
-        if (response.status == 200) {
-          console.log('old: ' + localStorage.getItem("authToken"))
+        if (response.status === 200) {
           localStorage.setItem("authToken", JSON.stringify(data));
-          console.log('new: ' + localStorage.getItem("authToken"))
           setAuthToken(data);
           setUser(jwt_decode(data.access));
-        }else if(response.status == 401){
-          console.log('401')
         } else {
           logoutUser();
         }
@@ -63,7 +52,7 @@ const useFetch = () => {
   };
 
   const callFetch = async (url, settings) => {
-    let actualtoken = {...authToken};
+    let actualtoken = { ...authToken };
 
     const user = jwt_decode(actualtoken?.access);
     const isExpired = dayjs.unix(user?.exp).diff(dayjs()) < 1;
